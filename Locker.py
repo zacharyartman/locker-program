@@ -33,13 +33,14 @@ class Locker:
     return list_of_locker_modules
   
   def get_module_height(self):
-    return self.overall_height // self.num_modules
+    return self.overall_height / self.num_modules
   
   def generate_id(self, type: Union[LockerModule, LockerShelf, LockerMagnet, LockerDoor, LockerLatch], row: int, col: str, magnet_location = 'None'):
     id_dict = {LockerMagnet: 'magnet', LockerModule: 'module', LockerShelf: 'shelf', LockerDoor: 'door', LockerLatch: 'latch'}
     return f"{id_dict[type]}_{col}_{row}_{magnet_location}"
 
   def modules_needed(self, package: Package) -> int:
+    print(package.get_package_height(), type(self.get_module_height()))
     modules_needed = math.ceil(package.get_package_height() / self.get_module_height())
     print(f"{modules_needed} modules needed for package of height {package.get_package_height()}")
     return modules_needed

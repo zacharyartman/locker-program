@@ -1,4 +1,386 @@
 
+FILENAME: Package.py
+from Apartment import Apartment
+from LockerModule import LockerModule
+
+
+class Package:
+  def __init__(self, package_height: float, apartment_unit: Apartment, tracking_number = 'Missing', package_location=[]):
+    self.package_height = package_height
+    self.package_location = package_location
+    self.apartment_unit = apartment_unit
+    self.tracking_number = tracking_number
+  
+  def get_package_height(self):
+    return self.package_height
+
+  def set_package_location(self, package_location: list[LockerModule]):
+    self.package_location = package_location
+  
+  def get_package_location(self) -> list[LockerModule]:
+    return self.package_location
+  
+  def get_apartment_unit(self):
+    return self.apartment_unit
+  
+  def get_tracking_number(self):
+    return self.tracking_number
+
+  def set_tracking_number(self, tracking_number):
+    self.tracking_number = tracking_number
+  
+  def __str__(self) -> str:
+    return f"Tracking Number: {self.get_tracking_number()}. {self.get_apartment_unit()}"
+FILENAME: Apartment.py
+class Apartment:
+  def __init__(self, apartment_number: str):
+    self.apartment_number = apartment_number
+    self.packages = []
+    self.tenants = []
+
+  def add_package(self, package):
+    self.packages.append(package)
+
+  def get_packages(self):
+    return self.packages
+  
+  def add_tenant(self, tenant):
+    self.tenants.append(tenant)
+
+  def remove_tennant(self, tenant):
+    self.tenants.remove(tenant)
+
+  def get_tenants(self):
+    return self.tenants
+  
+  def __str__(self) -> str:
+    return f'Apartment #: {self.apartment_number}'
+
+
+FILENAME: LockerDoor.py
+# File: LockerDoor.py
+from LockerMagnet import LockerMagnet
+from BasicComponent import BasicComponent
+
+class LockerDoor(BasicComponent):
+  def __init__ (self, width, height, upper_magnet: LockerMagnet, lower_magnet: LockerMagnet, id: str):
+    super().__init__(id)
+    self.width = width
+    self.height = height
+    self.upper_magnet = upper_magnet
+    self.lower_magnet = lower_magnet
+  
+  def get_width(self):
+    return self.width
+
+  def get_height(self):
+    return self.height
+  
+  def activate_upper_magnet(self):
+    self.upper_magnet.activate_magnet()
+  
+  def deactivate_upper_magnet(self):
+    self.upper_magnet.deactivate_magnet()
+  
+  def activate_lower_magnet(self):
+    self.lower_magnet.activate_magnet()
+  
+  def deactivate_lower_magnet(self):
+    self.lower_magnet.deactivate_magnet()
+    
+  def get_upper_magnet(self):
+    return self.upper_magnet
+
+  def get_lower_magnet(self):
+    return self.lower_magnet
+  
+  def __str__(self) -> str:
+    return f"Door Width: {self.width}.\t Door Height: {self.height}.\t Door ID: {self.get_id()}"
+FILENAME: Tenant.py
+from Apartment import Apartment
+
+class Tenant:
+  def __init__(self, name: str, apartment: Apartment, phone_number: int):
+    self.name = name
+    self.apartment = apartment
+    self.phone_number = phone_number
+  
+  def notify_tenant(self):
+    print(f"TENANT {self.name} HAS NEW PACKAGE")
+FILENAME: Locker.py
+from typing import Union
+from Apartment import Apartment
+from LockerDoor import LockerDoor
+from LockerLatch import LockerLatch
+from LockerMagnet import LockerMagnet
+from LockerModule import LockerModule
+from LockerShelf import LockerShelf
+import math
+
+from Package import Package
+
+class Locker:
+  def __init__(self, num_modules: float, locker_width: float, overall_height: float, col: str):
+    self.num_modules = num_modules
+    self.locker_width = locker_width
+    self.overall_height = overall_height
+    self.col = col
+    self.modules = self.generate_lockers(num_modules, module_width=locker_width)
+    
+  def generate_lockers(self, num_modules: float, module_width: float) -> list[LockerModule]:
+    module_height = self.get_module_height()
+    list_of_locker_modules = []
+    
+    for i in range(num_modules):
+      upper_magnet = LockerMagnet(False, self.generate_id(LockerMagnet, i, self.col, 'upper'))
+      lower_magnet = LockerMagnet(False, self.generate_id(LockerMagnet, i, self.col, 'lower'))
+      locker_door = LockerDoor(module_width, module_height, upper_magnet, lower_magnet, self.generate_id(LockerDoor, i, self.col))
+      locker_latch = LockerLatch(True, self.generate_id(LockerLatch, i, self.col))
+      locker_shelf = LockerShelf(True, self.generate_id(LockerShelf, i, self.col))
+      locker_module = LockerModule(locker_door, locker_latch, locker_shelf, False, [], self.generate_id(LockerModule, i, self.col))
+      list_of_locker_modules.append(locker_module)
+    
+    return list_of_locker_modules
+  
+  def get_module_height(self):
+    return self.overall_height // self.num_modules
+  
+  def generate_id(self, type: Union[LockerModule, LockerShelf, LockerMagnet, LockerDoor, LockerLatch], row: int, col: str, magnet_location = 'None'):
+    id_dict = {LockerMagnet: 'magnet', LockerModule: 'module', LockerShelf: 'shelf', LockerDoor: 'door', LockerLatch: 'latch'}
+    return f"{id_dict[type]}_{col}_{row}_{magnet_location}"
+
+  def modules_needed(self, package: Package) -> int:
+    modules_needed = math.ceil(package.get_package_height() / self.get_module_height())
+    print(f"{modules_needed} modules needed for package of height {package.get_package_height()}")
+    return modules_needed
+  
+  def get_modules(self) -> list[LockerModule]:
+    return self.modules
+  
+  def get_available_modules(self) -> list[LockerModule]:
+    # returns list of locker module ids
+    available_modules = []
+    for module in self.get_modules():
+      if not module.is_occupied():
+        available_modules.append(module)
+    
+    return available_modules
+      
+    
+  def find_consecutive_lockers(self, lst: list, x: int) -> list[LockerModule]:
+    if len(lst) < x:
+      return []
+    
+    for i in range(len(lst) - x + 1):
+      if all(lst[i + j].get_row() == lst[i].get_row() + j for j in range(x)):
+        return lst[i:i + x]
+    return []
+
+    
+  def store_package(self, package: Package) -> bool:
+    modules_needed = self.modules_needed(package)
+    modules_to_use = self.find_consecutive_lockers(self.get_available_modules(), modules_needed)
+    if modules_to_use == []:
+      print("ERROR: NOT ENOUGH LOCKERS")
+      return
+    print(f"Using lockers: {modules_to_use}")
+    self.occupy_locker(modules_to_use, modules_needed)
+    package.set_package_location(modules_to_use)
+    package.get_apartment_unit().add_package(package)
+
+    modules_occupied: list[LockerModule] = package.get_package_location()
+    for module in modules_occupied:
+      module.add_package_to_module(package)
+
+  def pickup_packages(self, apartment: Apartment):
+    for package in apartment.get_packages():
+      # open the lockers
+      print(f'Apartment: {apartment}, package: {package}')
+
+    
+  def occupy_locker(self, modules_to_use: list[LockerModule], modules_needed: int):
+    # When a locker is occupied, the following must happen.
+    # The latches must open, the magnets must release
+    # The bottom shelf must extend
+    
+    first_module = modules_to_use[0]
+    first_module.occupy_locker()
+    first_module.get_latch().unlatch_door()
+    
+    if modules_needed == 1:
+        first_module.get_shelf().extend_shelf()
+    else:
+        last_module = modules_to_use[-1]
+        last_module.occupy_locker()
+        first_module.get_door().activate_lower_magnet()
+        last_module.get_door().activate_upper_magnet()
+        last_module.get_shelf().extend_shelf()
+        last_module.get_latch().unlatch_door()
+        
+        for module in modules_to_use[1:-1]:
+            module.occupy_locker()
+            module.get_door().activate_lower_magnet()
+            module.get_door().activate_upper_magnet()
+            module.get_latch().unlatch_door()
+    
+  def __str__(self):
+    string = f"Locker {self.col}"
+    for module in self.modules:
+      string += module.all_locker_str()
+    return string
+  
+  def unoccupy_locker(self, modules_used: list[LockerModule]):    
+    for module in modules_used:
+      module.get_shelf().retract_shelf()
+      module.get_door().deactivate_lower_magnet()
+      module.get_door().deactivate_upper_magnet()
+      module.get_latch().latch_door()
+    
+  def __str__(self):
+    string = f"Locker {self.col}"
+    for module in self.modules:
+      string += module.all_locker_str()
+    return string
+FILENAME: test.py
+from Apartment import Apartment
+from Locker import Locker
+from Package import Package
+from Tenant import Tenant
+
+def main():
+  column = 'A'
+  locker_A = Locker(3, 12, 80, column)
+  print(locker_A)
+  
+  apt_1516 = Apartment("1516")
+  zach = Tenant('Zach', apt_1516, 6096130439)
+  apt_1516.add_tenant(zach)
+  package = Package(2, apt_1516, '1Z092039423')
+  package_B = Package(10, apt_1516, '1HF9023')
+
+  locker_A.store_package(package)
+  locker_A.store_package(package_B)
+  print(locker_A)
+
+  locker_A.pickup_packages(apt_1516)
+  
+main()
+
+FILENAME: LockerMagnet.py
+from BasicComponent import BasicComponent
+
+class LockerMagnet(BasicComponent):
+  def __init__(self, active: bool, id: str):
+    super().__init__(id)
+    self.active = active
+  
+  def deactivate_magnet(self):
+    self.active = False
+  
+  def activate_magnet(self):
+    self.active = True
+    
+  def get_magnet_status(self):
+    return self.active
+  
+  def __str__(self) -> str:
+    return f"Magnet Active: {self.get_magnet_status()}\tMagnet ID: {self.get_id()}"
+FILENAME: LockerShelf.py
+from BasicComponent import BasicComponent
+
+class LockerShelf(BasicComponent):
+  def __init__(self, retracted: bool, id: str):
+    super().__init__(id)
+    self.retracted = retracted
+  
+  def retract_shelf(self):
+    self.retracted = True
+  
+  def extend_shelf(self):
+    self.retracted = False
+  
+  def get_shelf_retracted_status(self):
+    return self.retracted
+  
+  def __str__(self) -> str:
+    return f"Shelf Retracted: {self.get_shelf_retracted_status()}\tShelf ID: {self.get_id()}"
+FILENAME: BasicComponent.py
+class BasicComponent:
+  def __init__(self, id: str):
+    self.id = id
+  
+  def get_id(self):
+    return self.id
+  
+  def get_location(self):
+    # returns col, row
+    return self.id.split('_')[1], int(self.id.split('_')[2])
+  
+  def get_row(self):
+    return int(self.id.split('_')[2])
+  
+  def get_col(self):
+    return self.id.split('_')[1]
+FILENAME: LockerModule.py
+from LockerDoor import LockerDoor
+from LockerLatch import LockerLatch
+from LockerShelf import LockerShelf
+from BasicComponent import BasicComponent
+
+class LockerModule(BasicComponent):
+  def __init__(self, door: LockerDoor, latch: LockerLatch, shelf: LockerShelf, occupied: bool, group: list, id: str):
+    super().__init__(id)
+    self.door = door
+    self.latch = latch
+    self.shelf = shelf
+    self.occupied = occupied
+    self.group = group
+    self.module_contents = []
+
+  def is_occupied(self):
+    return self.occupied
+
+  def occupy_locker(self):
+    self.occupied = True
+  
+  def open_module(self):
+    self.latch.unlatch_door()
+    
+  def get_door(self):
+    return self.door
+  
+  def get_latch(self):
+    return self.latch
+
+  def get_shelf(self):
+    return self.shelf
+  
+  def get_upper_magnet(self):
+    return self.door.get_upper_magnet()
+
+  def get_lower_magnet(self):
+    return self.door.get_lower_magnet()
+  
+  def all_locker_str(self):
+    col, row = self.get_location()
+    string = f"\nLocker {col} Module {row}: \n\tComponent: Latch.\t{self.get_latch()}\n\tComponent: Door.\t{self.get_door()}\n\tComponent: Upper Magnet.\t {self.get_door().get_upper_magnet()}\n\tComponent: Lower Magnet.\t {self.get_door().get_lower_magnet()}\n\tComponent: Shelf.\t {self.get_shelf()}\n\tComponent: Module.\t {self.__str__()}"
+    return string
+  
+  def add_package_to_module(self, package):
+    self.module_contents.append(package)
+
+  def remove_package_to_module(self, package):
+    self.module_contents.remove(package)
+  
+  def get_module_contents(self):
+    return self.module_contents
+  
+  def __str__(self) -> str:
+    return f"Module Occupied: {self.is_occupied()}.\tModule Contents: {[str(package) for package in self.get_module_contents()]}.\tModule ID: {self.get_id()}"
+
+FILENAME: website_design.py
+# Website Functionalities
+# Create Apartment, Create Tenant, Create Package, Create Locker.
 FILENAME: LockerLatch.py
 from BasicComponent import BasicComponent
 

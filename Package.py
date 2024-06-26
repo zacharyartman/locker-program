@@ -10,7 +10,7 @@ class Package:
     self.tracking_number = tracking_number
   
   def get_package_height(self):
-    return self.package_height
+    return float(self.package_height)
 
   def set_package_location(self, package_location: list[LockerModule]):
     self.package_location = package_location
@@ -28,4 +28,4 @@ class Package:
     self.tracking_number = tracking_number
   
   def __str__(self) -> str:
-    return f"Tracking Number: {self.get_tracking_number()}. {self.get_apartment_unit()}"
+    return f"Tracking Number: {self.get_tracking_number()}. {self.get_apartment_unit()}. Package Height {self.get_package_height()}"

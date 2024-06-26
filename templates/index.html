@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Package Management System</title>
+</head>
+<body>
+    <h1>Package Management System</h1>
+    
+    <h2>Add Apartment</h2>
+    <form action="/add_apartment" method="post">
+        Apartment Number: <input type="text" name="apartment_number">
+        <button type="submit">Add Apartment</button>
+    </form>
+
+    <h2>Add Tenant</h2>
+    <form action="/add_tenant" method="post">
+        Apartment Number: <input type="text" name="apartment_number">
+        Tenant Name: <input type="text" name="tenant_name">
+        Phone Number: <input type="text" name="phone_number">
+        <button type="submit">Add Tenant</button>
+    </form>
+
+    <h2>Add Package</h2>
+    <form action="/add_package" method="post">
+        Apartment Number: <input type="text" name="apartment_number">
+        Package Height: <input type="number" name="package_height">
+        Tracking Number: <input type="text" name="tracking_number">
+        <button type="submit">Add Package</button>
+    </form>
+
+    <h2>Create Locker</h2>
+    <form action="/create_locker" method="post">
+        Number of Modules: <input type="number" name="num_modules">
+        Locker Width: <input type="number" name="locker_width">
+        Overall Height: <input type="number" name="overall_height">
+        Column: <input type="text" name="column">
+        <button type="submit">Create Locker</button>
+    </form>
+
+    <h2>Existing Apartments</h2>
+    <ul>
+        {% for apartment in apartments %}
+            <li>{{ apartment }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Existing Lockers</h2>
+    <ul>
+        {% for locker in lockers %}
+            <li>{{ locker }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
