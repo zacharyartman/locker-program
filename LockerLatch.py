@@ -16,3 +16,9 @@ class LockerLatch(BasicComponent):
   
   def __str__(self):
     return f"Latched: {self.is_latched()}.\t Latch ID: {self.get_id()}"
+  
+  def to_dict(self):
+    return {
+      'id': self.id,
+      'latched': self.latched,
+    }

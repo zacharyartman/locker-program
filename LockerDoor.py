@@ -36,3 +36,12 @@ class LockerDoor(BasicComponent):
   
   def __str__(self) -> str:
     return f"Door Width: {self.width}.\t Door Height: {self.height}.\t Door ID: {self.get_id()}"
+  
+  def to_dict(self):
+    return {
+      'id': self.id,
+      'width': self.width,
+      'height': self.height,
+      'upper_magnet': self.upper_magnet,
+      'lower_magnet': self.lower_magnet
+    }

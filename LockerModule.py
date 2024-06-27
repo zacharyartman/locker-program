@@ -53,3 +53,13 @@ class LockerModule(BasicComponent):
   
   def __str__(self) -> str:
     return f"Module Occupied: {self.is_occupied()}.\tModule Contents: {[str(package) for package in self.get_module_contents()]}.\tModule ID: {self.get_id()}"
+
+  def to_dict(self):
+    return {
+      'id': self.id,
+      'door': self.door,
+      'latch': self.latch,
+      'shelf': self.shelf,
+      'group': self.group,
+      'module_contents': self.module_contents,
+    }

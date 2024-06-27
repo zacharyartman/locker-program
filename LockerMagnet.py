@@ -16,3 +16,9 @@ class LockerMagnet(BasicComponent):
   
   def __str__(self) -> str:
     return f"Magnet Active: {self.get_magnet_status()}\tMagnet ID: {self.get_id()}"
+  
+  def to_dict(self):
+    return {
+      'id': self.id,
+      'active': self.active,
+    }

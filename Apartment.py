@@ -22,3 +22,9 @@ class Apartment:
   def __str__(self) -> str:
     return f'Apartment #: {self.apartment_number}'
 
+  def to_dict(self):
+    return {
+      'apartment_number': self.apartment_number,
+      'packages': self.packages,
+      'tenants': self.tenants,
+    }

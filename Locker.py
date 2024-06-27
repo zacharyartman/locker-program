@@ -132,3 +132,12 @@ class Locker:
     for module in self.modules:
       string += module.all_locker_str()
     return string
+  
+  def to_dict(self):
+    return {
+      'id': self.id,
+      'num_modules': self.num_modules,
+      'locker_width': self.locker_width,
+      'overall_height': self.overall_height,
+      'col': self.col,
+    }
